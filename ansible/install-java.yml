@@ -1,0 +1,78 @@
+- name: Update Nifi Properties
+  hosts: ec2
+  become: yes
+  vars:
+    nifi_properties_file: /home/ubuntu/nifi-1.26.0-bin/nifi-1.26.0/conf/nifi.properties # Adjust path
+    nifi_start_file: /home/ubuntu/nifi-1.26.0-bin/nifi-1.26.0/bin/nifi.sh
+    nifi_file_name: nifi-1.26.0-bin
+
+  tasks:
+    - name: Update APT cache
+      apt:
+        update_cache: yes
+
+    - name: Install OpenJDK 17
+      apt:
+        name: openjdk-17-jdk
+        state: present
+
+    - name: Verify Java version
+      command: java -version
+      register: java_output
+      ignore_errors: true
+
+    - name: Print Java version
+      debug:
+        var: java_output.stdout_lines 
+
+    - name: Install unzip
+      apt:
+        name: unzip
+        state: present
+
+    - name: Unzip nifi folder
+      ansible.builtin.unarchive:
+        src: /home/ubuntu/nifi-1.26.0-bin.zip
+        dest: /home/ubuntu
+        remote_src: yes
+
+    # 1️⃣ Comment out https host and port
+    - name: Comment out nifi.web.https.host
+      lineinfile:
+        path: "{{ nifi_properties_file }}"
+        regexp: '^nifi.web.https.host='
+        line: '#nifi.web.https.host=127.0.0.1'
+        backrefs: yes
+
+
+    - name: Comment out nifi.web.https.port
+      lineinfile:
+        path: "{{ nifi_properties_file }}"
+        regexp: '^nifi.web.https.port='
+        line: '#nifi.web.https.port=8443'
+        backrefs: yes
+
+    # 2️⃣ Set nifi.remote.input.secure to false
+    - name: Set nifi.remote.input.secure to false
+      lineinfile:
+        path: "{{ nifi_properties_file }}"
+        regexp: '^nifi.remote.input.secure='
+        line: 'nifi.remote.input.secure=false'
+        backrefs: yes
+
+    # 3️⃣ Empty the given security properties
+    - name: Clear specified NiFi security properties (make their values empty)
+      loop:
+        - nifi.security.keystore
+        - nifi.security.truststore
+        - nifi.security.keystoreType
+        - nifi.security.keystorePasswd
+        - nifi.security.keyPasswd
+        - nifi.security.truststoreType
+        - nifi.security.truststorePasswd
+      ansible.builtin.lineinfile:
+        path: "{{ nifi_properties_file }}"
+        regexp: '^{{ item | regex_escape() }}='
+        line: '{{ item }}='
+        create: yes
+        backrefs: yes

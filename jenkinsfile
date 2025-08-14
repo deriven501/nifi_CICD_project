@@ -1,0 +1,29 @@
+pipeline {
+    agent any
+    stages {
+    	stage('clean workspace') {
+        	steps {
+            	cleanWs()
+            }
+        }
+        stage('Checkout project repo') {
+            steps {
+                
+            }
+        }
+
+        stage('Checkout Nifi Repo') {
+            steps {
+                sh 'git clone "https://github.com/apache/nifi.git"'
+                sh 'git checkout rel/nifi-1.26.0'
+            }
+        }
+        stage('Build nifi') {
+            steps {
+            	sh 'cd nifi/'
+                sh 'cd nifi-assembly/'
+                sh 'mvn clean install'
+            }
+        }
+    }
+}
