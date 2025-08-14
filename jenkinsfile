@@ -8,7 +8,10 @@ pipeline {
         }
         stage('Checkout project repo') {
             steps {
-                
+                sh """
+                    git clone https://github.com/deriven501/nifi_CICD_project.git
+                    cd nifi_CICD_project/
+                """
             }
         }
 
@@ -25,5 +28,20 @@ pipeline {
                 sh 'mvn clean install'
             }
         }
+
+        stage('Terraform initialization') {
+            dir('terraform') {
+                sh """
+                    terraform init -upgrade
+                    terraform plan
+                """
+            }
+        }
+
+        // stage('Generate Inventory') {
+        //     steps {
+        //         sh 'scripts/prepare-inventory.sh'
+        //     }
+        // }
     }
 }
