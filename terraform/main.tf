@@ -55,6 +55,16 @@ resource "aws_instance" "t2_medium_ec2" {
   }
 }
 
+data "aws_iam_policy_document" "eks_assume" {
+  statement {
+    actions   = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["eks.amazonaws.com"]
+    }
+  }
+}
+
 resource "aws_iam_role" "eks_cluster_role" {
   name               = "${var.cluster_name}-cluster-role"
   assume_role_policy = data.aws_iam_policy_document.eks_assume.json
