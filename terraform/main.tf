@@ -6,6 +6,14 @@ data "aws_vpc" "default" {
   default = true
 }
 
+# All subnets in that VPC for EKS
+data "aws_subnets" "default" {
+   filter {
+     name   = "vpc-id"
+     values = [data.aws_vpc.default.id]
+   }
+}
+
 resource "aws_security_group" "allow_ssh" {
   name        = "allow_ssh"
   description = "Allow SSH and HTTPS(8443) inbound traffic"
