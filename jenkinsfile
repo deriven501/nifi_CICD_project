@@ -1,5 +1,17 @@
 pipeline {
     agent any
+    
+    parameters {
+        string(name: 'NIFI_VERSION', defaultValue: '1.26.0', description: 'NiFi version to build')
+        string(name: 'DOCKERHUB_USER', defaultValue: 'jackal501', description: 'Docker Hub username')
+        string(name: 'IMAGE_TAG', defaultValue: '1.26.0', description: 'Docker image tag')
+    }
+    
+    environment {
+        IMAGE_NAME = "${params.DOCKERHUB_USER}/nifi-custom"
+        FULL_TAG = "${IMAGE_NAME}:${params.IMAGE_TAG}"
+    }
+    
     stages {
     	stage('clean workspace') {
         	steps {
@@ -21,7 +33,7 @@ pipeline {
                 }
                 
                 dir('nifi_CICD_project/nifi') {
-                    sh 'git checkout rel/nifi-1.26.0'
+                    sh "git checkout rel/nifi-${params.NIFI_VERSION}"
                 }
                 
             }
@@ -29,10 +41,68 @@ pipeline {
         stage('Build nifi') {
             steps {
                 dir("nifi_CICD_project/nifi/nifi-assembly") {
-                      sh 'mvn clean install -U -DskipTests'
+                      sh "mvn clean install -U -DskipTests"
                 }
             }
         }
+
+        stage('Prepare Docker Context') {
+            steps {
+                sh """
+                    mkdir -p docker
+                    cat > docker/Dockerfile <<'EOF'
+                    FROM eclipse-temurin:17-jre-jammy
+                        
+                    RUN useradd --no-create-home --shell /bin/false nifi
+                        
+                    ARG NIFI_ZIP
+                        
+                    RUN apt-get update && \\
+                        apt-get install -y --no-install-recommends unzip ca-certificates curl && \\
+                        rm -rf /var/lib/apt/lists/*
+                        
+                    COPY \${NIFI_ZIP} /tmp/
+                        
+                    RUN mkdir -p /opt/nifi && \\
+                        unzip /tmp/\${NIFI_ZIP} -d /opt && \\
+                        mv /opt/nifi-*/* /opt/nifi/ && \\
+                        rm -rf /tmp/\${NIFI_ZIP} && \\
+                        chown -R nifi:nifi /opt/nifi
+                        
+                    ENV NIFI_HOME=/opt/nifi
+                    ENV PATH=\$NIFI_HOME/bin:\$PATH
+                    ENV NIFI_WEB_HTTP_PORT=8080
+                        
+                    EXPOSE 8080
+                    USER nifi
+                    ENTRYPOINT ["/opt/nifi/bin/nifi.sh", "run"]
+                """
+
+                sh "cp nifi_CICD_project/nifi/nifi-assembly/target/nifi-${params.NIFI_VERSION}-bin.zip docker/"
+            }
+        }
+
+        stage('Build & Push Docker Image') {
+        steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DH_USER', passwordVariable: 'DH_PASS')]) {
+                dir('docker') {
+                    sh '''
+                            docker version >/dev/null 2>&1 || { echo "Docker daemon unreachable"; exit 1; }
+                
+                            # Pre-pull base image to avoid apt-get issues
+                            docker pull eclipse-temurin:17-jre-jammy
+                
+                            echo "$DH_PASS" | docker login --username "$DH_USER" --password-stdin
+                            docker build --build-arg NIFI_ZIP=nifi-${NIFI_VERSION}-bin.zip -t ${FULL_TAG} .
+                            docker push ${FULL_TAG}
+                    '''
+              }
+            }
+          }
+        }
+
+
+
 
         stage('Terraform initialization') {
             steps {
