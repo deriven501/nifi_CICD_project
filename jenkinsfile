@@ -10,32 +10,40 @@ pipeline {
             steps {
                 sh """
                     git clone https://github.com/deriven501/nifi_CICD_project.git
-                    cd nifi_CICD_project/
                 """
             }
         }
 
         stage('Checkout Nifi Repo') {
             steps {
-                sh 'git clone "https://github.com/apache/nifi.git"'
-                sh 'git checkout rel/nifi-1.26.0'
+                dir('nifi_CICD_project') {
+                    sh 'git clone "https://github.com/apache/nifi.git"'
+                }
+                
+                dir('nifi_CICD_project/nifi') {
+                    sh 'git checkout rel/nifi-1.26.0'
+                }
+                
             }
         }
         stage('Build nifi') {
             steps {
-            	sh 'cd nifi/'
-                sh 'cd nifi-assembly/'
-                sh 'mvn clean install'
+                dir("nifi_CICD_project/nifi/nifi-assembly") {
+                      sh 'mvn clean install -U -DskipTests'
+                }
             }
         }
 
         stage('Terraform initialization') {
-            dir('terraform') {
-                sh """
-                    terraform init -upgrade
-                    terraform plan
-                """
+            steps {
+                dir('nifi_CICD_project/terraform') {
+                    sh """
+                        terraform init -upgrade
+                        terraform plan
+                    """
+                }
             }
+
         }
 
         // stage('Generate Inventory') {
