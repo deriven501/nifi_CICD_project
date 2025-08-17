@@ -53,7 +53,7 @@ resource "aws_security_group" "allow_ssh" {
 }
 
 resource "aws_instance" "t2_medium_ec2" {
-  ami           = "ami-04f167a56786e4b09"  # Change AMI if needed
+  ami           = "ami-05f991c49d264708f"  # Change AMI if needed
   instance_type = "t2.medium"
   key_name      = "NiFi"
   security_groups = [aws_security_group.allow_ssh.name]
