@@ -107,10 +107,12 @@ pipeline {
         stage('Terraform initialization') {
             steps {
                 dir('nifi_CICD_project/terraform') {
-                    sh """
-                        terraform init -upgrade
-                        terraform plan
-                    """
+                     withCredentials([usernamePassword(credentialsId: 'AWS_CREDS', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
+                        sh """
+                            terraform init -upgrade
+                            terraform plan
+                        """
+                    }
                 }
             }
 
