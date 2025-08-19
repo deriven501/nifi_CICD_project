@@ -120,7 +120,10 @@ pipeline {
 
         stage('Generate Inventory') {
             steps {
-                sh 'bash scripts/prepare-inventory.sh'
+                dir('nifi_CICD_project/') {
+                    sh 'bash scripts/prepare-inventory.sh'
+                }
+                
             }
         }
 
