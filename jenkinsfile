@@ -118,10 +118,12 @@ pipeline {
 
         }
 
-        // stage('Generate Inventory') {
-        //     steps {
-        //         sh 'scripts/prepare-inventory.sh'
-        //     }
-        // }
+        stage('Generate Inventory') {
+            steps {
+                sh 'bash scripts/prepare-inventory.sh'
+            }
+        }
+
+
     }
 }
