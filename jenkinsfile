@@ -110,7 +110,6 @@ pipeline {
                      withCredentials([usernamePassword(credentialsId: 'AWS_CREDS', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
                         sh """
                             terraform init -upgrade
-                            terraform plan
                             terraform apply -auto-approve
                         """
                     }
