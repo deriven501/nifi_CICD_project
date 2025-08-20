@@ -1,7 +1,5 @@
 #!/bin/bash
-IP=${terraform -chdir=terraform output -raw instance_public_ip}
-cd ../
-cat <<EOF>> inventory.ini
-$IP ansible_user=ubuntu ansible_ssh_private_key_file=./nifi-key.pem
-EOF
-
+public_ip=$(terraform -chdir=terraform output -raw nifi_public_ip)
+echo "[nifi]" > inventory.ini
+echo "$public_ip ansible_user=ubuntu ansible_ssh_private_key_file=./nifi-key.pem" >> inventory.ini
+echo "Wrote inventory.ini → $public_ip"
