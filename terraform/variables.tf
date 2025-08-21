@@ -34,5 +34,5 @@ variable "cluster_name" {
 variable "cluster_version" {
   description = "K8s control-plane version"
   type        = string
-  default     = "1.26"
+  default     = "1.31"
 }
