@@ -1,5 +1,5 @@
 - name: Update Nifi Properties
-  hosts: ec2
+  hosts: nifi
   become: yes
   vars:
     nifi_properties_file: /home/ubuntu/nifi-1.26.0-bin/nifi-1.26.0/conf/nifi.properties # Adjust path

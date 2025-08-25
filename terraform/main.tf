@@ -52,7 +52,7 @@ resource "aws_security_group" "allow_ssh" {
   }
 }
 
-resource "aws_instance" "t2_medium_ec2" {
+resource "aws_instance" "nifi" {
   ami           = "ami-05f991c49d264708f"  # Change AMI if needed
   instance_type = "t2.medium"
   key_name      = "NiFi"
@@ -136,7 +136,6 @@ resource "aws_eks_node_group" "node_group" {
   depends_on = [
     aws_iam_role_policy_attachment.eks_node_attach
   ]
-
   tags = {
     Name = "nifi_group_instance"
   }
