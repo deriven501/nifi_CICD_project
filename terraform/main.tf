@@ -136,5 +136,9 @@ resource "aws_eks_node_group" "node_group" {
   depends_on = [
     aws_iam_role_policy_attachment.eks_node_attach
   ]
+
+  tags = {
+    Name = "nifi_group_instance"
+  }
 }
 

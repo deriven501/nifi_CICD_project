@@ -143,7 +143,7 @@ pipeline {
 
         stage('Install Java and modify nifi properties') {
             steps {
-                    sh 'ansible-playbook -i inventory.ini ansible/playbooks/setup-nifi.yml'
+                    sh 'ansible-playbook -i inventory.ini ansible/setup-nifi.yml'
         
             }
         }
