@@ -123,15 +123,13 @@ pipeline {
                 script {
                 env.EKS_CLUSTER_NAME = sh(script: 'terraform -chdir=terraform output -raw eks_cluster_name', returnStdout: true).trim()
                 env.SUBNET_IDS_RAW = sh(script: 'terraform -chdir=terraform output -raw subnet_ids', returnStdout: true).trim()
-                env.NIFI_PUBLIC_IP = sh(script: 'terraform -chdir=terraform output -raw nifi_public_ip', returnStdout: true).trim()
                 env.SUBNET_IDS = env.SUBNET_IDS_RAW.replaceAll(',', ' ')
                 echo "Cluster Name: ${env.EKS_CLUSTER_NAME}"
                 echo "Subnets: ${env.SUBNET_IDS}"
-                echo "EC2 NiFi Public IP: ${env.NIFI_PUBLIC_IP}"
                 }
             }
         }
-
+/* 
         stage('Generate Inventory') {
             steps {
                 dir('nifi_CICD_project/') {
@@ -146,7 +144,7 @@ pipeline {
                     sh 'ansible-playbook -i inventory.ini ansible/setup-nifi.yml'
         
             }
-        }
+        } */
 
     }
 }

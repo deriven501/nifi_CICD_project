@@ -36,3 +36,8 @@ variable "cluster_version" {
   type        = string
   default     = "1.31"
 }
+
+variable "ami_id" {
+  type    = string
+  default = "ami-05f991c49d264708f"
+}

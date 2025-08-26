@@ -52,16 +52,7 @@ resource "aws_security_group" "allow_ssh" {
   }
 }
 
-resource "aws_instance" "nifi" {
-  ami           = "ami-05f991c49d264708f"  # Change AMI if needed
-  instance_type = "t2.medium"
-  key_name      = "NiFi"
-  security_groups = [aws_security_group.allow_ssh.name]
 
-  tags = {
-    Name = "NiFi_Instance"
-  }
-}
 
 data "aws_iam_policy_document" "eks_assume" {
   statement {
@@ -131,6 +122,10 @@ resource "aws_eks_node_group" "node_group" {
     desired_size = var.node_group_desired
     min_size     = var.node_group_min
     max_size     = var.node_group_max
+  }
+  launch_template {
+    id      = aws_launch_template.eks_nodes.id
+    version = "$Latest"
   }
   
   depends_on = [
