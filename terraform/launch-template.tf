@@ -1,7 +1,7 @@
 resource "aws_launch_template" "eks_nodes" {
   name = "${var.cluster_name}-node"  
   name_prefix   = "${var.cluster_name}-node-"
-  image_id      = data.aws_ssm_parameter.eks_al2_ami.value
+  image_id      = var.ami_id
   instance_type = var.instance_type
    
 
