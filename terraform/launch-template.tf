@@ -3,8 +3,6 @@ resource "aws_launch_template" "eks_nodes" {
   image_id      = var.ami_id
   instance_type = var.instance_type
    
-
-
   user_data = base64encode(<<-EOT
     #!/bin/bash
     /etc/eks/bootstrap.sh ${var.cluster_name}
