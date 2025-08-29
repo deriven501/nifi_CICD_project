@@ -17,3 +17,7 @@ output "vpc_id" {
   description = "VPC ID in use"
   value       = data.aws_vpc.default.id
 }
+
+output "nifi_public_ip" {
+  value = aws_launch_template.eks_nodes.public_ip
+}

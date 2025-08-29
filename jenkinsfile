@@ -121,15 +121,19 @@ pipeline {
         stage('Cache Terraform Outputs') {
             steps {
                 script {
-                env.EKS_CLUSTER_NAME = sh(script: 'terraform -chdir=terraform output -raw eks_cluster_name', returnStdout: true).trim()
-                env.SUBNET_IDS_RAW = sh(script: 'terraform -chdir=terraform output -raw subnet_ids', returnStdout: true).trim()
-                env.SUBNET_IDS = env.SUBNET_IDS_RAW.replaceAll(',', ' ')
-                echo "Cluster Name: ${env.EKS_CLUSTER_NAME}"
-                echo "Subnets: ${env.SUBNET_IDS}"
+
+                    dir('nifi_CICD_project/') {
+                        env.EKS_CLUSTER_NAME = sh(script: 'terraform -chdir=terraform output -raw eks_cluster_name', returnStdout: true).trim()
+                        env.SUBNET_IDS_RAW = sh(script: 'terraform -chdir=terraform output -raw subnet_ids', returnStdout: true).trim()
+                        env.SUBNET_IDS = env.SUBNET_IDS_RAW.replaceAll(',', ' ')
+                    }
+                
+                    echo "Cluster Name: ${env.EKS_CLUSTER_NAME}"
+                    echo "Subnets: ${env.SUBNET_IDS}"
                 }
             }
         }
-/* 
+ 
         stage('Generate Inventory') {
             steps {
                 dir('nifi_CICD_project/') {
@@ -138,7 +142,7 @@ pipeline {
                 
             }
         }
-
+/*
         stage('Install Java and modify nifi properties') {
             steps {
                     sh 'ansible-playbook -i inventory.ini ansible/setup-nifi.yml'
