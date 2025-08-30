@@ -6,6 +6,7 @@ resource "aws_launch_template" "eks_nodes" {
   name = "${var.cluster_name}-node"  
   image_id      = data.aws_ssm_parameter.eks_al2_ami.value
   instance_type = var.instance_type
+  key_name      = "NiFi.pem"
    
   user_data = base64encode(<<-EOT
     #!/bin/bash
@@ -16,7 +17,11 @@ resource "aws_launch_template" "eks_nodes" {
   tag_specifications {
     resource_type = "instance"
     tags = {
-      Name = "${var.cluster_name}-node"
+      Name = "${var.cluster_name}-node",
     }
+
+
   }
+
+  
 }
