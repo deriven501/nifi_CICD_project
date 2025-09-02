@@ -133,7 +133,7 @@ pipeline {
                 }
             }
         }
-/* 
+
         stage('Generate Inventory') {
             steps {
                 dir('nifi_CICD_project/') {
@@ -144,11 +144,12 @@ pipeline {
         }
 
         stage('Install Java and modify nifi properties') {
-            steps {
+            steps { 
+                dir('nifi_CICD_project/') {
                     sh 'ansible-playbook -i inventory.ini ansible/setup-nifi.yml'
-        
+                }
             }
-        } */
+        } 
 
     }
 }
