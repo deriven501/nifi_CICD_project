@@ -12,7 +12,7 @@ resource "aws_launch_template" "eks_nodes" {
     /etc/eks/bootstrap.sh ${var.cluster_name}
   EOT
   )
-
+  
   tag_specifications {
     resource_type = "instance"
     tags = {

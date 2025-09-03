@@ -117,7 +117,9 @@ resource "aws_eks_node_group" "node_group" {
   node_group_name = "${var.cluster_name}-nodes"
   node_role_arn   = aws_iam_role.eks_node_role.arn
   subnet_ids      = data.aws_subnets.default.ids
-
+  instance_types = "t2.medium"
+  ami_type = "AL2_x86_64"
+  capacity_type = "ON_DEMAND"
   scaling_config {
     desired_size = var.node_group_desired
     min_size     = var.node_group_min
@@ -127,11 +129,7 @@ resource "aws_eks_node_group" "node_group" {
     ec2_ssh_key               = "NiFi"       
     source_security_group_ids = [aws_security_group.allow_ssh.id]
   }
-  launch_template {
-    id      = aws_launch_template.eks_nodes.id
-    version = "$Latest"
-  }
-  
+
   depends_on = [
     aws_iam_role_policy_attachment.eks_node_attach
   ]
