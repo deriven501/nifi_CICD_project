@@ -117,7 +117,6 @@ resource "aws_eks_node_group" "node_group" {
   node_group_name = "${var.cluster_name}-nodes"
   node_role_arn   = aws_iam_role.eks_node_role.arn
   subnet_ids      = data.aws_subnets.default.ids
-  instance_types = "t2.medium"
   ami_type = "AL2_x86_64"
   capacity_type = "ON_DEMAND"
   scaling_config {
