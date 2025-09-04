@@ -124,9 +124,11 @@ resource "aws_eks_node_group" "node_group" {
     min_size     = var.node_group_min
     max_size     = var.node_group_max
   }
+
+  
   remote_access {
     ec2_ssh_key               = "NiFi"       
-    source_security_group_ids = [aws_security_group.allow_ssh.id]
+    source_security_group_ids = [aws_security_group.allow_ssh]
   }
 
   depends_on = [
