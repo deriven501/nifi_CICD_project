@@ -128,7 +128,7 @@ resource "aws_eks_node_group" "node_group" {
   
   remote_access {
     ec2_ssh_key               = "NiFi"       
-    source_security_group_ids = ["allow_ssh"]
+    source_security_group_ids = [data.aws_security_group.allow_ssh.id]
   }
 
   depends_on = [
