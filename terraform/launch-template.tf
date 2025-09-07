@@ -8,7 +8,7 @@ resource "aws_launch_template" "eks_nodes" {
   instance_type = var.instance_type
   key_name      = "NiFi"
 
-  security_group_names = aws_security_group.allow_ssh.name
+  security_group_names = ["aws_security_group.allow_ssh.name"]
 
   user_data = base64encode(<<-EOT
     #!/bin/bash
