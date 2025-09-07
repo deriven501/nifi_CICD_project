@@ -112,7 +112,7 @@ resource "aws_eks_cluster" "eks" {
 }
 
 
-resource "aws_eks_node_group" "node_group" {
+/* resource "aws_eks_node_group" "node_group" {
   cluster_name    = aws_eks_cluster.eks.name
   node_group_name = "${var.cluster_name}-nodes"
   node_role_arn   = aws_iam_role.eks_node_role.arn
@@ -137,5 +137,32 @@ resource "aws_eks_node_group" "node_group" {
   tags = {
     Name = "nifi_group_instance"
   }
+} */
+
+resource "aws_eks_node_group" "node_group" {
+  cluster_name    = aws_eks_cluster.eks.name
+  node_group_name = "${var.cluster_name}-nodes"
+  node_role_arn   = aws_iam_role.eks_node_role.arn
+  subnet_ids      = data.aws_subnets.default.ids
+
+  scaling_config {
+    desired_size = var.node_group_desired
+    min_size     = var.node_group_min
+    max_size     = var.node_group_max
+  }
+
+  launch_template {
+    id      = aws_launch_template.eks_nodes.id
+    version = "$Latest"
+  }
+
+  remote_access {
+    ec2_ssh_key               = "NiFi"       
+    source_security_group_ids = [aws_security_group.allow_ssh.id]
+  }
+
+  depends_on = [
+    aws_iam_role_policy_attachment.eks_node_attach
+  ]
 }
 
