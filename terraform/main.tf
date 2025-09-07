@@ -156,11 +156,6 @@ resource "aws_eks_node_group" "node_group" {
     version = "$Latest"
   }
 
-  remote_access {
-    ec2_ssh_key               = "NiFi"       
-    source_security_group_ids = [aws_security_group.allow_ssh.id]
-  }
-
   depends_on = [
     aws_iam_role_policy_attachment.eks_node_attach
   ]
