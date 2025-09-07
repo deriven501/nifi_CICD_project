@@ -14,7 +14,7 @@ data "aws_subnets" "default" {
    }
 }
 
-resource "aws_security_group" "allow_ssh" {
+/* resource "aws_security_group" "allow_ssh" {
   name        = "allow_ssh"
   description = "Allow SSH and HTTPS(8443) inbound traffic"
   vpc_id      = data.aws_vpc.default.id
@@ -50,7 +50,7 @@ resource "aws_security_group" "allow_ssh" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-}
+} */
 
 
 
@@ -144,7 +144,7 @@ resource "aws_eks_node_group" "node_group" {
   node_group_name = "${var.cluster_name}-nodes"
   node_role_arn   = aws_iam_role.eks_node_role.arn
   subnet_ids      = data.aws_subnets.default.ids
-
+  
   scaling_config {
     desired_size = var.node_group_desired
     min_size     = var.node_group_min
