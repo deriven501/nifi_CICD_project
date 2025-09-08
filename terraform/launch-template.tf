@@ -7,7 +7,7 @@ resource "aws_launch_template" "eks_nodes" {
   image_id      = data.aws_ssm_parameter.eks_al2_ami.value
   instance_type = var.instance_type
   key_name      = "NiFi"
-  security_group_names = [aws_security_group.allow_ssh.name]
+  security_group_names = [aws_security_group.allow_ssh.id]
 
   user_data = base64encode(<<-EOT
     #!/bin/bash
