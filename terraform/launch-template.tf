@@ -8,7 +8,10 @@ resource "aws_launch_template" "eks_nodes" {
   instance_type = var.instance_type
   key_name      = "NiFi"
 
-  vpc_security_group_ids = [aws_security_group.allow_ssh.id, data.aws_vpc.default.id]
+  network_interfaces {
+    security_groups = [aws_security_group.allow_ssh.id]
+    delete_on_termination       = true 
+  }
 
   user_data = base64encode(<<-EOT
     #!/bin/bash
