@@ -14,7 +14,7 @@ data "aws_subnets" "default" {
    }
 }
 
- resource "aws_security_group" "allow_ssh" {
+resource "aws_security_group" "allow_ssh" {
   name        = "allow_ssh"
   description = "Allow SSH and HTTPS(8443) inbound traffic"
   vpc_id      = data.aws_vpc.default.id
