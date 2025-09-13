@@ -101,7 +101,32 @@ pipeline {
           }
         }
 
+        stage('Install CLI - eksctl and kubectl'){
+            steps{
+                dir('nifi_CICD_project/k8s-manifests'){
+                    script{
+                        sh """
+                            chmod +x install-kctl.sh
+                            ./install-kctl.sh start
+                        """
+                        echo 'Kubectl and Eksctl installed.'
 
+ 
+                    }
+                }
+            }            
+        }
+
+        stage('Kubectl test') {
+            steps {
+                dir('nifi_CICD_project/') {
+                        sh """                 
+                            kubectl get nodes 
+                        """
+                }
+                
+            }
+        }
 
 
         stage('Terraform initialization') {
@@ -134,32 +159,7 @@ pipeline {
             }
         }
 
-        stage('Install CLI - eksctl and kubectl'){
-            steps{
-                dir('k8s-manifests'){
-                    script{
-                        sh """
-                            chmod +x install-kctl.sh
-                            ./install-kctl.sh start
-                        """
-                        echo 'Kubectl and Eksctl installed.'
 
- 
-                    }
-                }
-            }            
-        }
-
-        stage('Kubectl test') {
-            steps {
-                dir('nifi_CICD_project/') {
-                        sh """                 
-                            kubectl get nodes 
-                        """
-                }
-                
-            }
-        }
 
         stage('Generate Inventory') {
             steps {
