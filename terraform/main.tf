@@ -103,10 +103,14 @@ resource "aws_eks_cluster" "eks" {
   name     = var.cluster_name
   version  = var.cluster_version
   role_arn = aws_iam_role.eks_cluster_role.arn
-
+  
   vpc_config {
+    endpoint_public_access  = true
     subnet_ids = data.aws_subnets.default.ids
+    security_group_ids = [ aws_security_group.allow_ssh.id]
   }
+
+  
 
   depends_on = [ aws_iam_role_policy_attachment.eks_cluster_attach ]
 }
