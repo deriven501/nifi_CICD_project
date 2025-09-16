@@ -135,11 +135,6 @@ resource "aws_iam_role_policy_attachment" "eks_cluster_attach" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
 }
 
-resource "aws_iam_role_policy_attachment" "eks_service_policy" {
-  role       = aws_iam_role.jenkins_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSServicePolicy"
-}
-
 data "aws_iam_policy_document" "node_assume" {
   statement {
     actions   = ["sts:AssumeRole"]
