@@ -8,13 +8,13 @@ output "eks_cluster_endpoint" {
   value       = aws_eks_cluster.eks.endpoint
 }
 
-output "subnet_ids" {
-  description = "Subnet IDs used by EKS"
-  value       = join(",", data.aws_subnets.default.ids)
+output "vpc_id" {
+  value = aws_vpc.main.id
 }
 
-output "vpc_id" {
-  description = "VPC ID in use"
-  value       = data.aws_vpc.default.id
+output "subnet_id" {
+  value = aws_subnet.public.id
 }
+
+
 
