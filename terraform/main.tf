@@ -14,7 +14,7 @@ data "aws_subnets" "default" {
    }
 } */
 
-/* resource "aws_security_group" "allow_ssh" {
+resource "aws_security_group" "allow_ssh" {
   name        = "allow_ssh"
   description = "Allow SSH and HTTPS(8443) inbound traffic"
   vpc_id = aws_vpc.main.id
@@ -50,7 +50,7 @@ data "aws_subnets" "default" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-}  */
+} 
 
  resource "aws_security_group" "eks_cluster_sg" {
   name        = "eks-cluster-sg"
@@ -62,6 +62,16 @@ data "aws_subnets" "default" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+}
+
+resource "aws_security_group_rule" "eks_cluster_from_nodes" {
+  type                     = "ingress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.eks_cluster_sg.id
+  source_security_group_id = aws_security_group.eks_nodes_sg.id
+  description              = "Allow worker nodes to communicate with EKS API"
 }
 
 resource "aws_security_group" "eks_nodes_sg" {
@@ -84,22 +94,6 @@ resource "aws_security_group" "eks_nodes_sg" {
   }
 
   ingress {
-    description = "SSH"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    description = "HTTPS 8443"
-    from_port   = 8443
-    to_port     = 8443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
     from_port   = 8080
     to_port     = 8080
     protocol    = "tcp"
@@ -112,6 +106,26 @@ resource "aws_security_group" "eks_nodes_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+}
+
+resource "aws_security_group_rule" "node_to_node" {
+  type                     = "ingress"
+  from_port                = 0
+  to_port                  = 65535
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.eks_nodes_sg.id
+  source_security_group_id = aws_security_group.eks_nodes_sg.id
+  description              = "Allow worker nodes to communicate with each other"
+}
+
+resource "aws_security_group_rule" "jenkins_to_eks_api" {
+  type                     = "ingress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.eks_cluster_sg.id
+  source_security_group_id = aws_security_group.allow_ssh.id # Allow Default security group (Kafka, Jenkins) to access EKS
+  description              = "Allow Jenkins to access EKS API"
 }
 
 
