@@ -15,7 +15,7 @@ resource "aws_launch_template" "eks_nodes" {
   )
 
   network_interfaces {
-    security_groups = [aws_security_group.allow_ssh.id]
+     security_groups = [aws_security_group.eks_nodes_sg.id]
   }
 
   tag_specifications {

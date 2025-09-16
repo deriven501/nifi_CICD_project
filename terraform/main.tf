@@ -14,7 +14,7 @@ data "aws_subnets" "default" {
    }
 } */
 
-resource "aws_security_group" "allow_ssh" {
+/* resource "aws_security_group" "allow_ssh" {
   name        = "allow_ssh"
   description = "Allow SSH and HTTPS(8443) inbound traffic"
   vpc_id = aws_vpc.main.id
@@ -50,9 +50,9 @@ resource "aws_security_group" "allow_ssh" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-} 
+}  */
 
-/* resource "aws_security_group" "eks_cluster_sg" {
+ resource "aws_security_group" "eks_cluster_sg" {
   name        = "eks-cluster-sg"
   vpc_id      = aws_vpc.main.id
 
@@ -63,7 +63,56 @@ resource "aws_security_group" "allow_ssh" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
- */
+
+resource "aws_security_group" "eks_nodes_sg" {
+  name        = "eks-nodes-sg"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description              = "Allow traffic from EKS control plane"
+    from_port                = 1025
+    to_port                  = 65535
+    protocol                 = "tcp"
+    security_groups          = [aws_security_group.eks_cluster_sg.id]
+  }
+
+  ingress {
+    description = "SSH"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "HTTPS 8443"
+    from_port   = 8443
+    to_port     = 8443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
 
 
 data "aws_iam_policy_document" "eks_assume" {
@@ -86,6 +135,11 @@ resource "aws_iam_role_policy_attachment" "eks_cluster_attach" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
 }
 
+resource "aws_iam_role_policy_attachment" "eks_service_policy" {
+  role       = aws_iam_role.jenkins_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSServicePolicy"
+}
+
 data "aws_iam_policy_document" "node_assume" {
   statement {
     actions   = ["sts:AssumeRole"]
@@ -100,6 +154,8 @@ resource "aws_iam_role" "eks_node_role" {
   name               = "${var.cluster_name}-node-role"
   assume_role_policy = data.aws_iam_policy_document.node_assume.json
 }
+
+
 
 resource "aws_iam_role_policy_attachment" "eks_node_attach" {
   for_each = toset([
@@ -120,7 +176,7 @@ resource "aws_eks_cluster" "eks" {
     endpoint_private_access = true
     endpoint_public_access  = true
     subnet_ids = [aws_subnet.public.id, aws_subnet.public_b.id]
-    security_group_ids = [aws_security_group.allow_ssh.id]
+    security_group_ids = [aws_security_group.eks_cluster_sg.id]
   }
 
   
