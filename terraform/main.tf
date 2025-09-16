@@ -2,7 +2,7 @@ provider "aws" {
   region = "us-west-2"
 }
 
-data "aws_vpc" "default" {
+/* data "aws_vpc" "default" {
   default = true
 }
 
@@ -12,12 +12,12 @@ data "aws_subnets" "default" {
      name   = "vpc-id"
      values = [data.aws_vpc.default.id]
    }
-}
+} */
 
 resource "aws_security_group" "allow_ssh" {
   name        = "allow_ssh"
   description = "Allow SSH and HTTPS(8443) inbound traffic"
-  vpc_id      = data.aws_vpc.default.id
+  vpc_id = aws_vpc.main.id
 
   ingress {
     description = "SSH"
@@ -52,6 +52,18 @@ resource "aws_security_group" "allow_ssh" {
   }
 } 
 
+/* resource "aws_security_group" "eks_cluster_sg" {
+  name        = "eks-cluster-sg"
+  vpc_id      = aws_vpc.main.id
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+ */
 
 
 data "aws_iam_policy_document" "eks_assume" {
@@ -105,9 +117,10 @@ resource "aws_eks_cluster" "eks" {
   role_arn = aws_iam_role.eks_cluster_role.arn
   
   vpc_config {
+    endpoint_private_access = true
     endpoint_public_access  = true
-    subnet_ids = data.aws_subnets.default.ids
-    security_group_ids = [ aws_security_group.allow_ssh.id]
+    subnet_ids = [aws_subnet.public.id, aws_subnet.public_b.id]
+    security_group_ids = [aws_security_group.allow_ssh.id]
   }
 
   
