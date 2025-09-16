@@ -149,7 +149,7 @@ pipeline {
 
                     dir('nifi_CICD_project/') {
                         env.EKS_CLUSTER_NAME = sh(script: 'terraform -chdir=terraform output -raw eks_cluster_name', returnStdout: true).trim()
-                        env.SUBNET_IDS_RAW = sh(script: 'terraform -chdir=terraform output -raw subnet_ids', returnStdout: true).trim()
+                        env.SUBNET_IDS_RAW = sh(script: 'terraform -chdir=terraform output -raw subnet_id', returnStdout: true).trim()
                         env.SUBNET_IDS = env.SUBNET_IDS_RAW.replaceAll(',', ' ')
                     }
                 

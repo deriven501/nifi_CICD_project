@@ -18,7 +18,7 @@ resource "aws_subnet" "public" {
 
   tags = {
     Name = "public-subnet"
-    "kubernetes.io/cluster/my-eks-cluster" = "shared"
+    "kubernetes.io/cluster/eks-nifi" = "shared"
     "kubernetes.io/role/elb"               = "1"
   }
 }
@@ -32,7 +32,7 @@ resource "aws_subnet" "public_b" {
 
   tags = {
     Name = "public-subnetb"
-    "kubernetes.io/cluster/my-eks-cluster" = "shared"
+    "kubernetes.io/cluster/eks-nifi" = "shared"
     "kubernetes.io/role/elb"               = "1"
   }
 }
