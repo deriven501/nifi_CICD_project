@@ -1,7 +1,7 @@
 - name: Update Nifi Properties
   connection: local
   hosts: nifi
-  become: yes
+  #become: yes
   vars:
     nifi_properties_file:  /var/lib/jenkins/workspace/nifi_fullProcess/nifi_CICD_project/nifi/nifi-assembly/target/nifi-1.26.0/conf/nifi.properties # Adjust path
     nifi_home: /var/lib/jenkins/workspace/nifi_fullProcess/nifi_CICD_project/nifi/nifi-assembly/target/nifi-1.26.0/
