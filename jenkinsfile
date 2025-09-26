@@ -46,6 +46,14 @@ pipeline {
             }
         }
 
+        stage('Unzip nifi build and update its properties') {
+            steps {
+                dir("nifi_CICD_project/nifi/nifi-assembly/target") {
+                      sh "unzip nifi-1.26.0-bin.zip"
+                }
+            }
+        }
+
         stage('Prepare Docker Context') {
             steps {
                 sh """
@@ -101,6 +109,37 @@ pipeline {
           }
         }
 
+        stage('Terraform initialization') {
+            steps {
+                dir('nifi_CICD_project/terraform') {
+                     withCredentials([usernamePassword(credentialsId: 'AWS_CREDS', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
+                        sh """
+                            terraform init -upgrade
+                            terraform apply -auto-approve
+                            
+                        """
+                    }
+                }
+            }
+
+        }
+
+        stage('Cache Terraform Outputs') {
+            steps {
+                script {
+
+                    dir('nifi_CICD_project/') {
+                        env.EKS_CLUSTER_NAME = sh(script: 'terraform -chdir=terraform output -raw eks_cluster_name', returnStdout: true).trim()
+                        env.SUBNET_IDS_RAW = sh(script: 'terraform -chdir=terraform output -raw subnet_id', returnStdout: true).trim()
+                        env.SUBNET_IDS = env.SUBNET_IDS_RAW.replaceAll(',', ' ')
+                    }
+                
+                    echo "Cluster Name: ${env.EKS_CLUSTER_NAME}"
+                    echo "Subnets: ${env.SUBNET_IDS}"
+                }
+            }
+        }
+
         stage('Install CLI - eksctl and kubectl'){
             steps{
                 dir('nifi_CICD_project/k8s-manifests'){
@@ -125,37 +164,6 @@ pipeline {
                         """
                 }
                 
-            }
-        }
-
-
-        stage('Terraform initialization') {
-            steps {
-                dir('nifi_CICD_project/terraform') {
-                     withCredentials([usernamePassword(credentialsId: 'AWS_CREDS', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
-                        sh """
-                            terraform init -upgrade
-                            terraform apply -auto-approve
-                        """
-                    }
-                }
-            }
-
-        }
-
-        stage('Cache Terraform Outputs') {
-            steps {
-                script {
-
-                    dir('nifi_CICD_project/') {
-                        env.EKS_CLUSTER_NAME = sh(script: 'terraform -chdir=terraform output -raw eks_cluster_name', returnStdout: true).trim()
-                        env.SUBNET_IDS_RAW = sh(script: 'terraform -chdir=terraform output -raw subnet_id', returnStdout: true).trim()
-                        env.SUBNET_IDS = env.SUBNET_IDS_RAW.replaceAll(',', ' ')
-                    }
-                
-                    echo "Cluster Name: ${env.EKS_CLUSTER_NAME}"
-                    echo "Subnets: ${env.SUBNET_IDS}"
-                }
             }
         }
 
