@@ -54,6 +54,7 @@
     #     recurse: yes
 
     - name: Configure nifi.properties for HTTP and Site-to-Site
+      delegate_to: localhost
       block:
         # Comment out https host and port
         - name: Comment out nifi.web.https.host
