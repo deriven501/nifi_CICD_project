@@ -1,4 +1,5 @@
 - name: Update Nifi Properties
+  connection: local
   hosts: nifi
   become: yes
   vars:
