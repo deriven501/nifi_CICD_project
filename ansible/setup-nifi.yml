@@ -136,4 +136,18 @@
             regexp: '^nifi\.remote\.contents\.cache\.expiration='
             line: 'nifi.remote.contents.cache.expiration=30 secs'
             create: yes
+            
+        - name: Set nifi.web.http.host
+          lineinfile:
+            path: "{{ nifi_home }}/conf/nifi.properties"
+            regexp: '^nifi\.web\.http\.host='
+            line: 'nifi.web.http.host=0.0.0.0'
+            create: yes
+
+        - name: Set nifi.web.http.port
+          lineinfile:
+            path: "{{ nifi_home }}/conf/nifi.properties"
+            regexp: '^nifi\.web\.http\.port='
+            line: 'nifi.web.http.port=8080'
+            create: yes
       delegate_to: 127.0.0.1
