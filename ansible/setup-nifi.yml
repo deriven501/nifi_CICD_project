@@ -10,49 +10,6 @@
     java_home: /usr/lib/jvm/java-17-openjdk-amd64
 
   tasks:
-    # - name: Update APT cache
-    #   apt:
-    #     update_cache: yes
-
-    # - name: Install OpenJDK 17
-    #   apt:
-    #     name: openjdk-17-jdk
-    #     state: present
-
-    # - name: Verify Java version
-    #   command: java -version
-    #   register: java_output
-    #   ignore_errors: true
-
-    # - name: Print Java version
-    #   debug:
-    #     var: java_output.stdout_lines 
-
-    # - name: Set JAVA_HOME system-wide for all users
-    #   lineinfile:
-    #     path: /etc/profile.d/java_home.sh
-    #     line: "export JAVA_HOME={{ java_home }}"
-    #     create: yes
-    #     state: present
-
-    # - name: Install unzip
-    #   apt:
-    #     name: unzip
-    #     state: present
-
-    # - name: Unzip nifi folder
-    #   ansible.builtin.unarchive:
-    #     src: /home/ubuntu/nifi-1.26.0-bin.zip
-    #     dest: /home/ubuntu
-    #     remote_src: yes
-
-    # - name: Set permissions on NiFi home
-    #   file:
-    #     path: "{{ nifi_home }}"
-    #     owner: ubuntu
-    #     group: ubuntu
-    #     recurse: yes
-
     - name: Configure nifi.properties for HTTP and Site-to-Site
       block:
         # Comment out https host and port

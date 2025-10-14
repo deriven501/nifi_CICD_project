@@ -54,6 +54,14 @@ pipeline {
             }
         }
 
+        stage('modify nifi properties') {
+            steps { 
+                dir('nifi_CICD_project/') {
+                    sh 'ansible-playbook -i inventory.ini ansible/setup-nifi.yml'
+                }
+            }
+        } 
+
         stage('Prepare Docker Context') {
             steps {
                 sh """
@@ -168,23 +176,6 @@ pipeline {
         }
 
 
-
-        stage('Generate Inventory') {
-            steps {
-                dir('nifi_CICD_project/') {
-                    sh 'bash scripts/prepare_inventory.sh'
-                }
-                
-            }
-        }
-
-        stage('Install Java and modify nifi properties') {
-            steps { 
-                dir('nifi_CICD_project/') {
-                    sh 'ansible-playbook -i inventory.ini ansible/setup-nifi.yml'
-                }
-            }
-        } 
 
     }
 }
